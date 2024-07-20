@@ -10,8 +10,15 @@ const protect = asyncHandler(async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findByPk(decoded.userId, {
+        attributes: { exclude: ['password'] },
+      });
 
-      req.user = await User.findById(decoded.userId).select('-password');
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      req.user = user;  // Menyimpan pengguna ke req.user
 
       next();
     } catch (error) {

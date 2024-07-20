@@ -8,7 +8,7 @@ import generateToken from '../utils/generateToken.js';
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({where: {email:email}});
 
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
@@ -30,7 +30,13 @@ const authUser = asyncHandler(async (req, res) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
+  
+  if (password.length < 6) {
+    res.status(400);
+    throw new Error('Password need to be at least 6 chars');
+  }
+
+  const userExists = await User.findOne({where: {email:email}});
 
   if (userExists) {
     res.status(400);
@@ -72,7 +78,7 @@ const logoutUser = (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findOne({where: {_id:req.user._id}});
 
   if (user) {
     res.json({
@@ -90,8 +96,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
+  const user = await User.findByPk(req.user._id);
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
@@ -112,6 +117,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
 export {
   authUser,
   registerUser,

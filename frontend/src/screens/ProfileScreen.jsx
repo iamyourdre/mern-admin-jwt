@@ -30,18 +30,21 @@ const ProfileScreen = () => {
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
     } else {
-      try {
-        const res = await updateProfile({
-          _id: userInfo._id,
-          name,
-          email,
-          password,
-        }).unwrap();
-        console.log(res);
-        dispatch(setCredentials(res));
-        toast.success('Profile updated successfully');
-      } catch (err) {
-        toast.error(err?.data?.message || err.error);
+      if(password.length < 6) {
+        toast.error('Passwords must be at least 6 characters')
+      } else {
+        try {
+          const res = await updateProfile({
+            _id: userInfo._id,
+            name,
+            email,
+            password,
+          }).unwrap();
+          dispatch(setCredentials(res));
+          toast.success('Profile updated successfully');
+        } catch (err) {
+          toast.error(err?.data?.message || err.error);
+        }
       }
     }
   };

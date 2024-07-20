@@ -9,7 +9,14 @@ import userRoutes from './routes/userRoutes.js';
 
 const port = process.env.PORT || 5000;
 
-connectDB();
+// Cek koneksi ke database
+connectDB.authenticate()
+.then(() => {
+  console.log('Database connected...');
+})
+.catch(err => {
+  console.error('Unable to connect to the database:', err);
+});
 
 const app = express();
 
